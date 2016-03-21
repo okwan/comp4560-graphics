@@ -32,3 +32,11 @@ C:\Users\Oscar\Desktop\comp4560-graphics\asgn5\obj\Debug\asgn5v1.csprojResolveAs
 C:\Users\Oscar\Desktop\comp4560-graphics\asgn5\obj\Debug\asgn5v1.AboutDialogBox.resources
 C:\Users\Oscar\Desktop\comp4560-graphics\asgn5\obj\Debug\asgn5v1.Transformer.resources
 C:\Users\Oscar\Desktop\comp4560-graphics\asgn5\obj\Debug\asgn5v1.csproj.GenerateResource.Cache
+D:\comp4560-graphics\asgn5\bin\Debug\asgn5v1.exe
+D:\comp4560-graphics\asgn5\bin\Debug\asgn5v1.pdb
+D:\comp4560-graphics\asgn5\obj\Debug\asgn5v1.csprojResolveAssemblyReference.cache
+D:\comp4560-graphics\asgn5\obj\Debug\asgn5v1.AboutDialogBox.resources
+D:\comp4560-graphics\asgn5\obj\Debug\asgn5v1.Transformer.resources
+D:\comp4560-graphics\asgn5\obj\Debug\asgn5v1.csproj.GenerateResource.Cache
+D:\comp4560-graphics\asgn5\obj\Debug\asgn5v1.exe
+D:\comp4560-graphics\asgn5\obj\Debug\asgn5v1.pdb

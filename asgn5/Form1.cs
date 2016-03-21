@@ -21,7 +21,8 @@ namespace asgn5v1
 
 		int numpts = 0;
 		int numlines = 0;
-		bool gooddata = false;
+        int x = 0;
+        bool gooddata = false;
         double[,] centerTranslation;	
 		double[,] vertices;
 		double[,] scrnpts;
@@ -329,6 +330,45 @@ namespace asgn5v1
 			Application.Run(new Transformer());
 		}
 
+        double[,] rotationMatrixXInitialize(double angle)
+        {
+            double[,] rotationMatrix = new double[4, 4];
+            setIdentity(rotationMatrix, 4, 4);
+
+            rotationMatrix[1, 1] = Math.Cos(angle);
+            rotationMatrix[1, 2] = Math.Sin(angle);
+            rotationMatrix[2, 1] = -Math.Sin(angle);
+            rotationMatrix[2, 2] = Math.Cos(angle);
+
+            return rotationMatrix;
+        }
+
+        double[,] rotationMatrixYInitialize(double angle)
+        {
+            double[,] rotationMatrix = new double[4, 4];
+            setIdentity(rotationMatrix, 4, 4);
+
+            rotationMatrix[0, 0] = Math.Cos(angle);
+            rotationMatrix[0, 2] = -Math.Sin(angle);
+            rotationMatrix[2, 0] = Math.Sin(angle);
+            rotationMatrix[2, 2] = Math.Cos(angle);
+
+            return rotationMatrix;
+        }
+
+        double[,] rotationMatrixZInitialize(double angle)
+        {
+            double[,] rotationMatrix = new double[4, 4];
+            setIdentity(rotationMatrix, 4, 4);
+
+            rotationMatrix[0, 0] = Math.Cos(angle);
+            rotationMatrix[0, 1] = Math.Sin(angle);
+            rotationMatrix[1, 0] = -Math.Sin(angle);
+            rotationMatrix[1, 1] = Math.Cos(angle);
+
+            return rotationMatrix;
+        }
+
         double[,] translateMatrixInitialize(double x, double y, double z)
         {
             double[,] translateMatrix = new double[4, 4];
@@ -364,13 +404,12 @@ namespace asgn5v1
 
             return reflectionMatrix;
         }
+
         double[,] MultiplyMatrix(double[,] firstMatrix, double[,] secondMatrix)
         {
             double[,] A = new double[4, 4];
             double[,] B = new double[4, 4];
             double[,] C = new double[4, 4];
-
-            double temp;
 
             A = firstMatrix;
             B = secondMatrix;
@@ -379,7 +418,7 @@ namespace asgn5v1
             {
                 for (int j = 0; j < 4; j++)
                 {
-                    temp = 0.0d;
+                    double temp = 0.0d;
                     for (int k = 0; k < 4; k++)
                     {
                         temp += A[i, k] * B[k, j];
@@ -391,21 +430,45 @@ namespace asgn5v1
             return C;
         }
 
-        double [,] intializeImageCenter(double heightOfGraphic)
-       { 
+        private void addNetTransform(double[,] matrix)
+        {
+            double[,] temp = new double[4, 4];
+
+            // multiple the matrices
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    for (int k = 0; k < 4; k++)
+                    {
+                        temp[i, j] += ctrans[i, k] * matrix[k, j];
+                    }
+                }
+            }
+
+            // assign ctrans to the new matrix
+            ctrans = temp;
+        }
+
+        double [,] intializeImageCenter()
+        { 
             double width = ClientSize.Width / 2;
             double height = ClientSize.Height / 2;
 
-            double tryThis = (height * 4.5 / heightOfGraphic);
+            double tryThis = (height / 20);
 
-            double[,] translateA = translateMatrixInitialize(-10, -10, 0);
+            double x = vertices[0, 0];
+            double y = vertices[0, 1];
+            double z = vertices[0, 2];
+
+            double[,] translateA = translateMatrixInitialize(-x, -y, -z);
             double[,] translateB = translateMatrixInitialize(width, height, 0);
-            double[,] scaleA = scaleMatrixInitialize(tryThis, tryThis, 0);
-            double[,] reflectionA = reflectionMatrixInitialize(1, -1, 0);
+            double[,] scaleA = scaleMatrixInitialize(tryThis, tryThis, tryThis);
+            double[,] reflectionA = reflectionMatrixInitialize(1, -1, 1);
 
-            double[,] temp1 = MultiplyMatrix(translateA, reflectionA);
-            double[,] temp2 = MultiplyMatrix(temp1, scaleA);
-            double[,] tNet = MultiplyMatrix(temp2, translateB);
+            double[,] a = MultiplyMatrix(translateA, reflectionA);
+            double[,] b = MultiplyMatrix(a, scaleA);
+            double[,] tNet = MultiplyMatrix(b, translateB);
 
             return tNet;
         }
@@ -422,10 +485,8 @@ namespace asgn5v1
 
                 //create the screen coordinates:
                 //scrnpts = vertices * ctrans;
-
-                double height = grfx.DpiY;
                 // get screen size width and height
-                ctrans = intializeImageCenter(height);
+                // ctrans = intializeImageCenter(height);
 
 
                 for (int i = 0; i < numpts; i++)
@@ -471,7 +532,8 @@ namespace asgn5v1
 
 		void RestoreInitialImage()
 		{
-			Invalidate();
+            ctrans = intializeImageCenter();
+            Invalidate();
 		} // end of RestoreInitialImage
 
 		bool GetNewData()
@@ -521,7 +583,8 @@ namespace asgn5v1
 			}
 			scrnpts = new double[numpts,4];
 			setIdentity(ctrans,4,4);  //initialize transformation matrix to identity
-			return true;
+            ctrans = intializeImageCenter();
+            return true;
 		} // end of GetNewData
 
 		void DecodeCoords(ArrayList coorddata)
@@ -574,51 +637,159 @@ namespace asgn5v1
 			
 		}
 
-		private void toolBar1_ButtonClick(object sender, System.Windows.Forms.ToolBarButtonClickEventArgs e)
+
+        private void translateLeftButton()
+        {
+            double[,] a = translateMatrixInitialize(-75, 0, 0);
+            addNetTransform(a);
+        }
+
+        private void translateRightButton()
+        {
+            double[,] a = translateMatrixInitialize(75, 0, 0);
+            addNetTransform(a);
+        }
+
+        private void translateUpButton()
+        {
+            double[,] a = translateMatrixInitialize(0, -35, 0);
+            addNetTransform(a);
+        }
+
+        private void translateDownButton()
+        {
+            double[,] a = translateMatrixInitialize(0, 35, 0);
+            addNetTransform(a);
+        }
+
+        private void scaleUpButton()
+        {
+            double x = scrnpts[0, 0];
+            double y = scrnpts[0, 1];
+            double z = scrnpts[0, 2];
+
+            double[,] translateToCenter = translateMatrixInitialize(-x, -y, -z);
+            double[,] a = scaleMatrixInitialize(1.1, 1.1, 1.1);
+            double[,] translateBack = translateMatrixInitialize(x, y, z);
+
+            double[,] yolo = MultiplyMatrix(translateToCenter, a);
+            addNetTransform(MultiplyMatrix(yolo, translateBack));
+        }
+
+        private void scaleDownButton()
+        {
+            double x = scrnpts[0, 0];
+            double y = scrnpts[0, 1];
+            double z = scrnpts[0, 2];
+
+            double[,] translateToCenter = translateMatrixInitialize(-x, -y, -z);
+            double[,] a = scaleMatrixInitialize(0.9, 0.9, 0.9);
+            double[,] translateBack = translateMatrixInitialize(x, y, z);
+
+            double[,] yolo = MultiplyMatrix(translateToCenter, a);
+
+            addNetTransform(MultiplyMatrix(yolo, translateBack));
+        }
+
+        private void rotateXButton()
+        {
+            double x = scrnpts[0, 0];
+            double y = scrnpts[0, 1];
+            double z = scrnpts[0, 2];
+
+            double[,] translateToCenter = translateMatrixInitialize(-x, -y, -z);
+            double[,] a = rotationMatrixXInitialize(0.05);
+            double[,] translateBack = translateMatrixInitialize(x, y, z);
+
+            double[,] yolo = MultiplyMatrix(translateToCenter, a);
+
+            addNetTransform(MultiplyMatrix(yolo, translateBack));
+        }
+
+        private void rotateYButton()
+        {
+            double x = scrnpts[0, 0];
+            double y = scrnpts[0, 1];
+            double z = scrnpts[0, 2];
+
+            double[,] translateToCenter = translateMatrixInitialize(-x, -y, -z);
+            double[,] a = rotationMatrixYInitialize(0.05);
+            double[,] translateBack = translateMatrixInitialize(x, y, z);
+
+            double[,] yolo = MultiplyMatrix(translateToCenter, a);
+
+            addNetTransform(MultiplyMatrix(yolo, translateBack));
+        }
+
+        private void rotateZButton()
+        {
+            double x = scrnpts[0, 0];
+            double y = scrnpts[0, 1];
+            double z = scrnpts[0, 2];
+
+            double[,] translateToCenter = translateMatrixInitialize(-x, -y, -z);
+            double[,] a = rotationMatrixZInitialize(0.05);
+            double[,] translateBack = translateMatrixInitialize(x, y, z);
+
+            double[,] yolo = MultiplyMatrix(translateToCenter, a);
+
+            addNetTransform(MultiplyMatrix(yolo, translateBack));
+        }
+        private void toolBar1_ButtonClick(object sender, System.Windows.Forms.ToolBarButtonClickEventArgs e)
 		{
-			if (e.Button == transleftbtn)
+            if (e.Button == transleftbtn)
 			{
-				Refresh();
+                translateLeftButton();
+                Refresh();
 			}
 			if (e.Button == transrightbtn) 
 			{
-				Refresh();
+                translateRightButton();
+                Refresh();
 			}
 			if (e.Button == transupbtn)
 			{
-				Refresh();
+                translateUpButton();
+                Refresh();
 			}
 			
 			if(e.Button == transdownbtn)
 			{
-				Refresh();
+                translateDownButton();
+                Refresh();
 			}
 			if (e.Button == scaleupbtn) 
 			{
+                scaleUpButton();
 				Refresh();
 			}
 			if (e.Button == scaledownbtn) 
 			{
+                scaleDownButton();
 				Refresh();
 			}
 			if (e.Button == rotxby1btn) 
 			{
-				
-			}
+                rotateXButton();
+                Refresh();
+            }
 			if (e.Button == rotyby1btn) 
 			{
-				
-			}
-			if (e.Button == rotzby1btn) 
+                rotateYButton();
+                Refresh();
+
+            }
+            if (e.Button == rotzby1btn) 
 			{
-				
-			}
+                rotateZButton();
+                Refresh();
+            }
 
 			if (e.Button == rotxbtn) 
 			{
-				
-			}
-			if (e.Button == rotybtn) 
+
+            }
+            if (e.Button == rotybtn) 
 			{
 				
 			}
