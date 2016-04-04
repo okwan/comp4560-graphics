@@ -40,3 +40,11 @@ D:\comp4560-graphics\asgn5\obj\Debug\asgn5v1.Transformer.resources
 D:\comp4560-graphics\asgn5\obj\Debug\asgn5v1.csproj.GenerateResource.Cache
 D:\comp4560-graphics\asgn5\obj\Debug\asgn5v1.exe
 D:\comp4560-graphics\asgn5\obj\Debug\asgn5v1.pdb
+E:\comp4560-graphics\asgn5\obj\Debug\asgn5v1.exe
+E:\comp4560-graphics\asgn5\obj\Debug\asgn5v1.pdb
+E:\comp4560-graphics\asgn5\bin\Debug\asgn5v1.exe
+E:\comp4560-graphics\asgn5\bin\Debug\asgn5v1.pdb
+E:\comp4560-graphics\asgn5\obj\Debug\asgn5v1.csprojResolveAssemblyReference.cache
+E:\comp4560-graphics\asgn5\obj\Debug\asgn5v1.AboutDialogBox.resources
+E:\comp4560-graphics\asgn5\obj\Debug\asgn5v1.Transformer.resources
+E:\comp4560-graphics\asgn5\obj\Debug\asgn5v1.csproj.GenerateResource.Cache

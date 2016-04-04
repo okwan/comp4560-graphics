@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using System.Data;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace asgn5v1
 {
@@ -52,6 +53,8 @@ namespace asgn5v1
 		private System.Windows.Forms.ToolBarButton exitbtn;
 		int[,] lines;
         Screen primary;
+        Thread rotationThread;
+
         public Transformer()
 		{
 			//
@@ -735,8 +738,96 @@ namespace asgn5v1
 
             addNetTransform(MultiplyMatrix(yolo, translateBack));
         }
+
+        private double[,] shearLeft()
+        {
+            double[,] result = new double[4, 4];
+            setIdentity(result, 4, 4);
+
+            result[1, 0] = 0.1;
+
+            return result;
+        }
+
+        private double[,] shearRight()
+        {
+            double[,] result = new double[4, 4];
+            setIdentity(result, 4, 4);
+
+            result[1, 0] = -0.1;
+
+            return result;
+
+        }
+
+        private void shearLeftButton()
+        {
+            double x = scrnpts[0, 0];
+            double y = scrnpts[0, 1];
+            double z = scrnpts[0, 2];
+
+            double[,] translateToCenter = translateMatrixInitialize(-x, -y, -z);
+            double[,] a = shearLeft();
+            double[,] translateBack = translateMatrixInitialize(x, y, z);
+
+            double[,] yolo = MultiplyMatrix(translateToCenter, a);
+
+            addNetTransform(MultiplyMatrix(yolo, translateBack));
+
+        }
+
+        private void shearRightButton()
+        {
+            double x = scrnpts[0, 0];
+            double y = scrnpts[0, 1];
+            double z = scrnpts[0, 2];
+
+            double[,] translateToCenter = translateMatrixInitialize(-x, -y, -z);
+            double[,] a = shearRight();
+            double[,] translateBack = translateMatrixInitialize(x, y, z);
+
+            double[,] yolo = MultiplyMatrix(translateToCenter, a);
+
+            addNetTransform(MultiplyMatrix(yolo, translateBack));
+
+        }
+
+        private void continuousX()
+        {
+            while (true)
+            {
+                rotateXButton();
+                Invalidate();
+                Thread.Sleep(50);
+            }
+        }
+
+        private void continuousY()
+        {
+            while (true)
+            {
+                rotateYButton();
+                Invalidate();
+                Thread.Sleep(50);
+            }
+        }
+        private void continuousZ()
+        {
+            while (true)
+            {
+                rotateZButton();
+                Invalidate();
+                Thread.Sleep(50);
+            }
+        }
         private void toolBar1_ButtonClick(object sender, System.Windows.Forms.ToolBarButtonClickEventArgs e)
 		{
+            //check if rotation thread exists, kill it if it does
+            if (rotationThread != null && rotationThread.IsAlive)
+            {
+                rotationThread.Abort();
+            }
+
             if (e.Button == transleftbtn)
 			{
                 translateLeftButton();
@@ -787,25 +878,30 @@ namespace asgn5v1
 
 			if (e.Button == rotxbtn) 
 			{
-
+                rotationThread = new Thread(new ThreadStart(continuousX));
+                rotationThread.Start();
             }
             if (e.Button == rotybtn) 
 			{
-				
-			}
+                rotationThread = new Thread(new ThreadStart(continuousY));
+                rotationThread.Start();
+            }
 			
 			if (e.Button == rotzbtn) 
 			{
-				
-			}
+                rotationThread = new Thread(new ThreadStart(continuousZ));
+                rotationThread.Start();
+            }
 
 			if(e.Button == shearleftbtn)
 			{
-				Refresh();
+                shearLeftButton();
+                Refresh();
 			}
 
 			if (e.Button == shearrightbtn) 
 			{
+                shearRightButton();
 				Refresh();
 			}
 
